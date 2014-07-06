@@ -6,15 +6,34 @@ import re
 
 # The query for hitler as a research example: http://en.wikipedia.org/w/api.php?action=query&list=backlinks&bltitle=Adolf_Hitler&bllimit=500&blfilterredir=nonredirects&blcontinue=0|Adolf_Hitler|51534&continue=
 
-def search(start, results):
-    if len(start) == 0:
-        myfrom = ""
-    else:
-        myfrom = "&gapfrom=" + url_fix(start)
-    result = requests.get("http://en.wikipedia.org/w/api.php?format=json&action=query&generator=allpages&gaplimit=500" + myfrom).json()
+def getAllIds():
+    counter = 0
+    filenum = 1
+    s = ''
+    r = u''
+    while True:
+        (s, r) = getAllIdsHelper(s, r)
+        if s == None:
+            f = open('%04d' % filenum, 'a')
+            f.write(r.encode('utf8'))
+            f.close()
+            break
+        counter += 1
+        if counter == 1:
+            f = open('%04d' % filenum, 'a')
+            f.write(r.encode('utf8'))
+            f.close()
+            r = ''
+            counter = 0
+            filenum += 1
+    return 'Finished'
+    
+
+def getAllIdsHelper(mycontinue, results):
+    result = requests.get('http://en.wikipedia.org/w/api.php?action=query&list=allpages&format=json&aplimit=1&generator=allpages&gapnamespace=0&gaplimit=500&gapcontinue=' + url_fix(mycontinue)).json()
     for i in result['query']['pages']:
-        results += i + ","
-    if "query-continue" not in result:
+        results += str(result['query']['pages'][i]['pageid']) + ',' + unicode(result['query']['pages'][i]['title']) + '\n'
+    if 'query-continue' not in result:
         return (None, results)
     else:
         return (result['query-continue']['allpages']['gapcontinue'], results)
@@ -28,28 +47,6 @@ def url_fix(s, charset='utf-8'):
     path = urllib.quote(path, '/%')
     qs = urllib.quote_plus(qs, ':&=')
     mys = urlparse.urlunsplit((scheme, netloc, path, qs, anchor))
-    return re.sub("&", "%26", mys)
+    return re.sub('&', '%26', mys)
 
-def main():
-    counter = 0
-    filenum = 1
-    s = ""
-    r = ""
-    while True:
-        (s, r) = search(s, r)
-        if s == None:
-            f = open("%04d" % filenum, 'a')
-            f.write(r)
-            f.close()
-            break
-        counter += 1
-        if counter == 1:
-            f = open("%04d" % filenum, 'a')
-            f.write(r)
-            f.close()
-            r = ""
-            counter = 0
-            filenum += 1
-    print "Finished"
-
-main()
+getAllIds()
