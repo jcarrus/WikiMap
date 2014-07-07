@@ -19,7 +19,7 @@ def getAllIds():
             f.close()
             break
         counter += 1
-        if counter == 1:
+        if counter == 100:
             f = open('%04d' % filenum, 'a')
             f.write(r.encode('utf8'))
             f.close()
