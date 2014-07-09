@@ -13,7 +13,7 @@ def getAllIds():
     continue_string = ''
     r = u''
    # prefixes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    prefixes = ['C', 'D', 'O']
+    prefixes = ['C']
     for i in prefixes:
         try:
             if not os.path.exists('data/' + i):
@@ -24,6 +24,12 @@ def getAllIds():
             counter = 0
             while True:
                 (continue_string, r) = getAllIdsHelper(continue_string, r, i)
+                if continue_string == "000000":
+                    f = open('data/' + i + '/%04d' % filenum, 'w')
+                    f.write(r.encode('utf8'))
+                    f.close()
+                    print "Err"
+                    break
                 if continue_string == None:
                     f = open('data/' + i + '/%04d' % filenum, 'w')
                     f.write(r.encode('utf8'))
@@ -46,14 +52,17 @@ def getAllIds():
     
 
 def getAllIdsHelper(mycontinue, results, prefix = ""):
-    result = requests.get('http://en.wikipedia.org/w/api.php?format=json&action=query&generator=allpages&gaplimit=500&gapprefix=' + prefix + '&gapfilterredir=nonredirects&gapcontinue=' + url_fix(mycontinue)).json()
+    result = requests.get('http://en.wikipedia.org/w/api.php?format=json&action=query&generator=allpages&gaplimit=477&gapprefix=' + prefix + '&gapfilterredir=nonredirects&gapcontinue=' + url_fix(mycontinue)).json()
+    if result == []:
+        return ("000000", results)
     try:
         for i in result['query']['pages']:
             results += str(result['query']['pages'][i]['pageid']) + ',' + unicode(result['query']['pages'][i]['title']) + '\n'
     except:
         print result
+        print url_fix(mycontinue)
         raise
-   if 'query-continue' not in result:
+    if 'query-continue' not in result:
         return (None, results)
     else:
         return (result['query-continue']['allpages']['gapcontinue'], results)
