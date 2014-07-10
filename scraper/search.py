@@ -7,12 +7,14 @@ import traceback
 
 # The query for hitler as a research example: http://en.wikipedia.org/w/api.php?action=query&list=backlinks&bltitle=Adolf_Hitler&bllimit=500&blfilterredir=nonredirects&blcontinue=0|Adolf_Hitler|51534&continue=
 
+# prefixes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+
+
 def getAllIds():
     counter = 0
     filenum = 1
     continue_string = ''
     r = u''
-   # prefixes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     prefixes = ['C']
     for i in prefixes:
         try:
@@ -25,7 +27,7 @@ def getAllIds():
             while True:
                 (continue_string, r) = getAllIdsHelper(continue_string, r, i)
                 if continue_string == "000000":
-                    f = open('data/' + i + '/%04d' % filenum, 'w')
+                    f = open('data/' + i + '/lastErr', 'w')
                     f.write(r.encode('utf8'))
                     f.close()
                     print "Err"
@@ -52,8 +54,9 @@ def getAllIds():
     
 
 def getAllIdsHelper(mycontinue, results, prefix = ""):
-    result = requests.get('http://en.wikipedia.org/w/api.php?format=json&action=query&generator=allpages&gaplimit=477&gapprefix=' + prefix + '&gapfilterredir=nonredirects&gapcontinue=' + url_fix(mycontinue)).json()
+    result = requests.get(getQuery("allpages", 500, prefix, mycontinue)).json()
     if result == []:
+        print getQuery("allpages", 500, prefix, mycontinue)
         return ("000000", results)
     try:
         for i in result['query']['pages']:
@@ -77,5 +80,15 @@ def url_fix(s, charset='utf-8'):
     qs = urllib.quote_plus(qs, ':&=')
     mys = urlparse.urlunsplit((scheme, netloc, path, qs, anchor))
     return re.sub('&', '%26', mys)
+
+def getQuery(list = "allpages", num_results = 500, prefix = "", mycontinue = ""):
+    return 'http://en.wikipedia.org/w/api.php?' \
+        + 'format=json' \
+        + '&action=query' \
+        + '&generator=' + list \
+        + '&gaplimit=' + str(num_results) \
+        + '&gapprefix=' + prefix \
+        + '&gapfilterredir=nonredirects' \
+        + '&gapcontinue=' + mycontinue#url_fix(mycontinue)
 
 getAllIds()
