@@ -52,5 +52,6 @@ docs/_build/
 # PyBuilder
 target/
 *~
-
 scraper/00*
+data/*
+screenlog*
