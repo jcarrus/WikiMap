@@ -55,3 +55,4 @@ target/
 scraper/00*
 data/*
 screenlog*
+*#*
