@@ -4,18 +4,17 @@ import urlparse
 import re
 import os
 import traceback
+import sys
 
 # The query for hitler as a research example: http://en.wikipedia.org/w/api.php?action=query&list=backlinks&bltitle=Adolf_Hitler&bllimit=500&blfilterredir=nonredirects&blcontinue=0|Adolf_Hitler|51534&continue=
-
-# prefixes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
 
 def getAllIds():
     counter = 0
     filenum = 1
     continue_string = ''
     r = u''
-    prefixes = ['C']
+
+    prefixes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     for i in prefixes:
         try:
             if not os.path.exists('data/' + i):
@@ -39,6 +38,7 @@ def getAllIds():
                     break
                 counter += 1
                 if counter == 100:
+                    sys.stdout.write('|')
                     f = open('data/' + i + '/%04d' % filenum, 'w')
                     f.write(r.encode('utf8'))
                     f.close()
