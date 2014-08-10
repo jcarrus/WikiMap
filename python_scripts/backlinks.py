@@ -23,7 +23,7 @@ def getAllBacklinks():
             while True:
                 (continue_string, r) = getAllBacklinksHelper(i[0], continue_string, r)
                 if continue_string == "000000":
-                    f = open('../data/backlinks/lastErr', 'w')
+                    f = open('../data/backlinks/%s/err' % (now,), 'w')
                     f.write(r.encode('utf8'))
                     f.close()
                     print "Err"
@@ -42,9 +42,13 @@ def getAllBacklinks():
                     r = ''
                     counter = 0
         except Exception as e:
-            print traceback.format_exc()
-            print e
-            print 'Error on %s' %str(i)
+            f = open('../data/backlinks/%s/err' % (now,), 'w')
+            f.write(e)
+            f.write("\n Error in File number: %04d" % (filenum,))
+            filenum += 1
+            f.write('\nError on %s \n' % (str(i),))
+            f.close()
+            print 'Error on  %s \n' % (str(i),)
     return "Finished"
     
 def getAllBacklinksHelper(page_id, mycontinue, results):
