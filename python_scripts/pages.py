@@ -6,8 +6,6 @@ import os
 import traceback
 import sys
 
-# The query for hitler as a research example: http://en.wikipedia.org/w/api.php?action=query&list=backlinks&bltitle=Adolf_Hitler&bllimit=500&blfilterredir=nonredirects&blcontinue=0|Adolf_Hitler|51534&continue=
-
 def getAllIds():
     counter = 0
     filenum = 1
@@ -17,8 +15,8 @@ def getAllIds():
     prefixes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     for i in prefixes:
         try:
-            if not os.path.exists('data/' + i):
-                os.makedirs('data/' + i)
+            if not os.path.exists('../data/pages/' + i):
+                os.makedirs('../data/pages/' + i)
             continue_string = ''
             r = u''
             filenum = 1
@@ -26,20 +24,20 @@ def getAllIds():
             while True:
                 (continue_string, r) = getAllIdsHelper(continue_string, r, i)
                 if continue_string == "000000":
-                    f = open('data/' + i + '/lastErr', 'w')
+                    f = open('../data/pages/' + i + '/lastErr', 'w')
                     f.write(r.encode('utf8'))
                     f.close()
                     print "Err"
                     break
                 if continue_string == None:
-                    f = open('data/' + i + '/%04d' % filenum, 'w')
+                    f = open('../data/pages/' + i + '/%04d' % filenum, 'w')
                     f.write(r.encode('utf8'))
                     f.close()
                     break
                 counter += 1
                 if counter == 100:
                     sys.stdout.write('|')
-                    f = open('data/' + i + '/%04d' % filenum, 'w')
+                    f = open('../data/pages/' + i + '/%04d' % filenum, 'w')
                     f.write(r.encode('utf8'))
                     f.close()
                     r = ''
@@ -89,6 +87,6 @@ def getQuery(list = "allpages", num_results = 500, prefix = "", mycontinue = "")
         + '&gaplimit=' + str(num_results) \
         + '&gapprefix=' + prefix \
         + '&gapfilterredir=nonredirects' \
-        + '&gapcontinue=' + mycontinue#url_fix(mycontinue)
+        + '&gapcontinue=' + mycontinue
 
 getAllIds()

@@ -2,7 +2,7 @@ import os
 import MySQLdb as mdb
 import csv
 
-def loadCSV():
+def uploadPages():
     con = mdb.connect('sql.mit.edu', 'jcarrus', 'ver17map',
                       'jcarrus+WikiMap')
     cur = con.cursor()
@@ -20,5 +20,4 @@ def loadCSV():
             if index % 100 == 0:
                 print index
 
-
-loadCSV()
+uploadPages()
