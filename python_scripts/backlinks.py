@@ -6,17 +6,18 @@ import os
 import traceback
 import sys
 import csv
+import datetime
 
 def getAllBacklinks():
-    if not os.path.exists('../data/backlinks/'):
-        os.makedirs('../data/backlinks/')
+    now = str(datetime.datetime.now())
+    if not os.path.exists('../data/backlinks/%s/' % now):
+        os.makedirs('../data/backlinks/%s/' % now)
     counter = 0
     filenum = 1
     continue_string = ''
     r = ''
     links = csv.reader(open('WikiMapAll', 'rb'))
-    for i in [["1756571"]]:#, for i in links:
-        print i[0]
+    for i in links:
         try:
             continue_string = ''
             while True:
@@ -28,14 +29,14 @@ def getAllBacklinks():
                     print "Err"
                     break
                 if continue_string == None:
-                    f = open('../data/backlinks/%04d' % filenum, 'w')
+                    f = open('../data/backlinks/%s/%04d' % (now, filenum), 'w')
                     f.write(r.encode('utf8'))
                     f.close()
                     break
                 counter += 1
                 if counter == 100:
                     sys.stdout.write('|')
-                    f = open('../data/backlinks/%04d' % filenum, 'w')
+                    f = open('../data/backlinks/%s/%04d' % (now, filenum), 'w')
                     f.write(r.encode('utf8'))
                     f.close()
                     r = ''
@@ -76,7 +77,7 @@ def getQuery(page_id, mycontinue = "", list = "backlinks", num_results = 500):
 
 def url_fix(s):
     return s.replace("&", "%26")
-#print getQuery("1756571", "0|106_&_Park|30496533")
+
 getAllBacklinks()
 
 
