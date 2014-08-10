@@ -15,7 +15,8 @@ def getAllBacklinks():
     continue_string = ''
     r = ''
     links = csv.reader(open('WikiMapAll', 'rb'))
-    for i in links:
+    for i in [["1756571"]]:#, for i in links:
+        print i[0]
         try:
             continue_string = ''
             while True:
@@ -70,9 +71,12 @@ def getQuery(page_id, mycontinue = "", list = "backlinks", num_results = 500):
         + '&blpageid=' + str(page_id) \
         + '&blfilterredir=nonredirects'
     if mycontinue != "":
-        mystr += '&blcontinue=' + mycontinue
+        mystr += '&blcontinue=' + url_fix(mycontinue)
     return mystr
 
+def url_fix(s):
+    return s.replace("&", "%26")
+#print getQuery("1756571", "0|106_&_Park|30496533")
 getAllBacklinks()
 
 
