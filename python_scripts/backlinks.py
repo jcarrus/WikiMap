@@ -17,50 +17,42 @@ def getAllBacklinks():
     continue_string = ''
     r = ''
     links = csv.reader(open('WikiMapAll', 'rb'))
-    for i in links:
+    for row in links:
         try:
             continue_string = ''
             while True:
-                (continue_string, r) = getAllBacklinksHelper(i[0], continue_string, r)
+                (continue_string, r) = getAllBacklinksHelper(row[0], continue_string, r)
                 if continue_string == "000000":
-                    f = open('../data/backlinks/%s/err' % (now,), 'w')
-                    f.write(r.encode('utf8'))
-                    f.close()
-                    print "Err"
-                    break
+                    return
+                #     f = open('../data/backlinks/%s/err' % (now,), 'w')
+                #     f.write(r.encode('utf8'))
+                #     f.close()
+                #     print "Err"
+                #     break
                 if continue_string == None:
-                    f = open('../data/backlinks/%s/%04d' % (now, filenum), 'w')
-                    f.write(r.encode('utf8'))
-                    f.close()
+                    counter += 1
+                    if counter % 1000 == 0:
+                        print counter
+                        f = open('../data/backlinks/%s/%04d' % (now, filenum), 'w')
+                        f.write(r.encode('utf8'))
+                        f.close()
+                        filenum += 1
                     break
-                counter += 1
-                if counter == 100:
-                    sys.stdout.write('|')
-                    f = open('../data/backlinks/%s/%04d' % (now, filenum), 'w')
-                    f.write(r.encode('utf8'))
-                    f.close()
-                    r = ''
-                    counter = 0
         except Exception as e:
-            f = open('../data/backlinks/%s/err' % (now,), 'w')
-            f.write(e)
-            f.write("\n Error in File number: %04d" % (filenum,))
-            filenum += 1
-            f.write('\nError on %s \n' % (str(i),))
-            f.close()
-            print 'Error on  %s \n' % (str(i),)
+            print 'Error on  %s \n' % (str(row),)
     return "Finished"
     
 def getAllBacklinksHelper(page_id, mycontinue, results):
     result = requests.get(getQuery(page_id, mycontinue)).json()
     if result == []:
+        print "Null result"
         print getQuery(page_id, mycontinue)
         return ("000000", result)
     try:
         for i in result['query']['backlinks']:
             results += page_id + ',' + str(i['pageid']) + '\n'
     except:
-        print result
+        print 'Exception thrown with result %s' % result
         raise
     if 'query-continue' not in result:
         return (None, results)
