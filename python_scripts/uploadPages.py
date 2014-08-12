@@ -7,17 +7,23 @@ def uploadPages():
                       'jcarrus+WikiMap')
     cur = con.cursor()
     index = 0
+    data = []
     cur.execute("TRUNCATE TABLE ids")
-    with open('WikiMapAll', 'rb') as file:
-        csvreader = csv.reader(file)
-        for i in csvreader:
-            index += 1
-            cur.execute("""
-            INSERT INTO ids
-            (curid, title)
-            VALUES (%s, %s);
-            """, (i[0],i[1]))
-            if index % 100 == 0:
-                print index
-
+    try:
+        with open('WikiMapAll', 'r') as file:
+            csvreader = csv.reader(file)
+            for i in csvreader:
+                data.append( (int(i[0]), i[1]) )
+                index += 1
+                if index % 10000 == 0:
+                    cur.executemany("INSERT IGNORE INTO ids (curid, title) VALUES (%s, %s);", data)
+                    print index
+                    data = []
+            cur.executemany("INSERT IGNORE INTO ids (curid, title) VALUES (%s, %s);", data)
+            print index
+    except Exception as e:
+        print e
+    cur.close()
+            
+            
 uploadPages()

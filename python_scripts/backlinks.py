@@ -4,7 +4,6 @@ from wikimaputils import Record
 
 def getAllBacklinks():
     writer = Record('backlinks', 10000)
-    counter = 0
     links = csv.reader(open('WikiMapAll', 'rb'))
     errors = Record('errors', 10000)
     for link in links:
@@ -42,4 +41,3 @@ def url_fix(s):
     return s.replace("&", "%26")
 
 getAllBacklinks()
-
