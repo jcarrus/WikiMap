@@ -1,71 +1,30 @@
 import requests
-import urllib
-import urlparse
-import re
-import os
-import traceback
-import sys
 import csv
-import datetime
+from wikimaputils import Record
 
 def getAllBacklinks():
-    now = str(datetime.datetime.now())
-    if not os.path.exists('../data/backlinks/%s/' % now):
-        os.makedirs('../data/backlinks/%s/' % now)
+    writer = Record('backlinks', 10000)
     counter = 0
-    filenum = 1
-    continue_string = ''
-    r = ''
     links = csv.reader(open('WikiMapAll', 'rb'))
-    for i in links:
+    errors = Record('errors', 10000)
+    for link in links:
         try:
-            continue_string = ''
-            while True:
-                (continue_string, r) = getAllBacklinksHelper(i[0], continue_string, r)
-                if continue_string == "000000":
-                    f = open('../data/backlinks/%s/err' % (now,), 'w')
-                    f.write(r.encode('utf8'))
-                    f.close()
-                    print "Err"
-                    break
-                if continue_string == None:
-                    f = open('../data/backlinks/%s/%04d' % (now, filenum), 'w')
-                    f.write(r.encode('utf8'))
-                    f.close()
-                    break
-                counter += 1
-                if counter == 100:
-                    sys.stdout.write('|')
-                    f = open('../data/backlinks/%s/%04d' % (now, filenum), 'w')
-                    f.write(r.encode('utf8'))
-                    f.close()
-                    r = ''
-                    counter = 0
-        except Exception as e:
-            f = open('../data/backlinks/%s/err' % (now,), 'w')
-            f.write(e)
-            f.write("\n Error in File number: %04d" % (filenum,))
-            filenum += 1
-            f.write('\nError on %s \n' % (str(i),))
-            f.close()
-            print 'Error on  %s \n' % (str(i),)
-    return "Finished"
-    
-def getAllBacklinksHelper(page_id, mycontinue, results):
-    result = requests.get(getQuery(page_id, mycontinue)).json()
-    if result == []:
-        print getQuery(page_id, mycontinue)
-        return ("000000", result)
-    try:
-        for i in result['query']['backlinks']:
-            results += page_id + ',' + str(i['pageid']) + '\n'
-    except:
-        print result
-        raise
+            backlinks = getBacklinksForId(link[0])
+            for backlink in backlinks:
+                writer.writeline(str(link[0]) + ',' + str(backlink))
+        except:
+            errors.writeline(str(link))
+    writer.close()
+    errors.close()
+
+def getBacklinksForId(page_id, blcontinue = ''):
+    results = []
+    result = requests.get(getQuery(page_id, blcontinue)).json()
+    for i in result['query']['backlinks']:
+        results.append(i['pageid'])
     if 'query-continue' not in result:
-        return (None, results)
-    else:
-        return (result['query-continue']['backlinks']['blcontinue'], results)
+        return results
+    return results + getBacklinksForId(page_id, result['query-continue']['backlinks']['blcontinue'])
 
 def getQuery(page_id, mycontinue = "", list = "backlinks", num_results = 500):
     mystr = 'http://en.wikipedia.org/w/api.php?' \
@@ -83,5 +42,4 @@ def url_fix(s):
     return s.replace("&", "%26")
 
 getAllBacklinks()
-
 
