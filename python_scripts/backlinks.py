@@ -12,7 +12,7 @@ def getAllBacklinks():
 
     # Make a bunch of threads
     for i in range(numThreads):
-        t = Thread(target = backlinksWorker, args = (linksQueue, writer))
+        t = Thread(target = backlinksWorker, args = (linksQueue, writer, errors))
         t.daemon = True
         t.start()
 
@@ -31,7 +31,7 @@ def getAllBacklinks():
     errors.close()
 
 
-def backlinksWorker(q, r):
+def backlinksWorker(q, r, e):
     while True:
         try:
             # Pull from the queue
@@ -46,7 +46,8 @@ def backlinksWorker(q, r):
             # Report finished
             q.task_done()
         except:
-            errors.writeline(str(frontlink))
+            e.writeline(str(frontlink))
+            raise
             
 def getBacklinksForId(page_id, blcontinue = ''):
     results = []

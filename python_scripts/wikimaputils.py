@@ -41,7 +41,8 @@ def writeQueue(starttime, directory, q, numLines):
                 f.close()
                 currentLines = 0
                 filenum += 1
-                f = open('%s/%s/%s/%05d' % (path, directory, now, filenum), 'w')
+                f = open('%s/%s/%s/%05d' % (path, directory, starttime, filenum), 'w')
             q.task_done()
         except:
             print "write error on line: %s" % line
+            raise
