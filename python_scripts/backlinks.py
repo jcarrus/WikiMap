@@ -18,8 +18,10 @@ def getAllBacklinks():
 
     # Read from the csv and add each link to the queue
     links = csv.reader(open('WikiMapAll', 'rb'))
-    for link in links:
+    for i, link in enumerate(links):
         linksQueue.put(link[0], True)
+        if (i % 10000 == 0):
+            print link[1]
 
     # Wait for the queue to finish
     linksQueue.join()
@@ -37,8 +39,10 @@ def backlinksWorker(q, r):
             # Get all backlinks
             links = getBacklinksForId(frontlink)
             # Write to the file
+            s = str(frontlink)
             for link in links:
-                r.writeline(str(frontlink) + ',' + str(link))
+                s += ',' + str(link)
+            r.writeline(s)
             # Report finished
             q.task_done()
         except:
